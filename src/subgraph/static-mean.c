@@ -15,6 +15,7 @@
 #include "xnnpack/node-type.h"
 #include "xnnpack/operator-type.h"
 #include "xnnpack/operator.h"
+#include "xnnpack/requantization.h"
 #include "xnnpack/subgraph-validation.h"
 #include "xnnpack/subgraph.h"
 #include "pthreadpool.h"
@@ -35,6 +36,12 @@ static enum xnn_status create_mean_operator(
   assert(input_id != XNN_INVALID_VALUE_ID);
   assert(input_id < num_values);
   const struct xnn_value *input_value = &values[input_id];
+
+  assert(node->num_outputs == 1);
+  const uint32_t output_id = node->outputs[0];
+  assert(output_id != XNN_INVALID_VALUE_ID);
+  assert(output_id < num_values);
+
   switch (input_value->datatype) {
     case xnn_datatype_fp16:
       status = xnn_create_mean_nd_f16(
@@ -46,6 +53,21 @@ static enum xnn_status create_mean_operator(
         node->flags,
         &opdata->operator_objects[0]);
       break;
+    case xnn_datatype_qint8:
+      {
+        const float input_scale = values[input_id].quantization.scale;
+        const float output_scale = values[output_id].quantization.scale;
+        const int8_t input_zero_point = (int8_t) values[input_id].quantization.zero_point;
+        const int8_t output_zero_point = (int8_t) values[output_id].quantization.zero_point;
+        const int8_t output_min = xnn_qs8_quantize(node->activation.output_min, output_scale, output_zero_point);
+        const int8_t output_max = xnn_qs8_quantize(node->activation.output_max, output_scale, output_zero_point);
+
+        status = xnn_create_mean_nd_qs8(
+          input_scale * output_scale, input_zero_point, output_zero_point, output_min, output_max,
+          node->flags,
+          &opdata->operator_objects[0]);
+        break;
+      }
     default:
       XNN_UNREACHABLE;
   }
@@ -94,6 +116,17 @@ static enum xnn_status reshape_mean_operator(
         opdata->reduction_axes,
         input_value->shape.num_dims,
         input_value->shape.dim,
+        threadpool);
+      break;
+    case xnn_operator_type_mean_nd_qs8:
+      status = xnn_reshape_mean_nd_qs8(
+        opdata->operator_objects[0],
+        opdata->num_reduction_axes,
+        opdata->reduction_axes,
+        input_value->shape.num_dims,
+        input_value->shape.dim,
+        &opdata->workspace_size,
+        &opdata->workspace_alignment,
         threadpool);
       break;
     default:
@@ -177,6 +210,11 @@ static enum xnn_status setup_mean_operator(
       return xnn_setup_mean_nd_f32(
         opdata->operator_objects[0],
         input_data, output_data);
+    case xnn_operator_type_mean_nd_qs8:
+      return xnn_setup_mean_nd_qs8(
+        opdata->operator_objects[0],
+        opdata->workspace,
+        input_data, output_data);
     default:
       XNN_UNREACHABLE;
   }
@@ -186,6 +224,8 @@ enum xnn_status xnn_define_static_mean(
   xnn_subgraph_t subgraph,
   size_t num_reduction_axes,
   const size_t* reduction_axes,
+  float output_min,
+  float output_max,
   uint32_t input_id,
   uint32_t output_id,
   uint32_t flags)
@@ -209,6 +249,7 @@ enum xnn_status xnn_define_static_mean(
   switch (input_value->datatype) {
     case xnn_datatype_fp16:
     case xnn_datatype_fp32:
+    case xnn_datatype_qint8:
       break;
     default:
       xnn_log_error(
@@ -236,6 +277,9 @@ enum xnn_status xnn_define_static_mean(
       break;
     case xnn_datatype_fp32:
       compute_type = xnn_compute_type_fp32;
+      break;
+    case xnn_datatype_qint8:
+      compute_type = xnn_compute_type_qs8;
       break;
     default:
       xnn_log_error(
@@ -278,6 +322,8 @@ enum xnn_status xnn_define_static_mean(
 
   node->type = xnn_node_type_static_mean;
   node->compute_type = compute_type;
+  node->activation.output_min = output_min;
+  node->activation.output_max = output_max;
   node->params.reduce.num_reduction_axes = num_reduction_axes;
   memcpy(node->params.reduce.reduction_axes, reduction_axes, num_reduction_axes * sizeof(size_t));
   node->num_inputs = 1;

@@ -1279,6 +1279,8 @@ enum xnn_status xnn_define_static_mean(
   xnn_subgraph_t subgraph,
   size_t num_reduction_axes,
   const size_t* reduction_axes,
+  float output_min,
+  float output_max,
   uint32_t input_id,
   uint32_t output_id,
   uint32_t flags);
