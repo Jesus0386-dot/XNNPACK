@@ -61,6 +61,7 @@ SET(PROD_SSE41_MICROKERNEL_SRCS
   src/qu8-gemm/gen/qu8-gemm-3x4c8-minmax-fp32-sse41-ld64.c
   src/qu8-igemm/gen/qu8-igemm-1x4c8-minmax-fp32-sse41-ld64.c
   src/qu8-igemm/gen/qu8-igemm-3x4c8-minmax-fp32-sse41-ld64.c
+  src/qu8-rsum/gen/qu8-rsum-sse41-u64.c
   src/qu8-vadd/gen/qu8-vadd-minmax-sse41-mul16-ld64-u8.c
   src/qu8-vaddc/gen/qu8-vaddc-minmax-sse41-mul16-ld64-u8.c
   src/qu8-vcvt/gen/qu8-vcvt-sse41-u32.c
@@ -369,8 +370,13 @@ SET(NON_PROD_SSE41_MICROKERNEL_SRCS
   src/qu8-igemm/gen/qu8-igemm-4x4c2-minmax-fp32-sse41-ld128.c
   src/qu8-igemm/gen/qu8-igemm-4x4c2s4-minmax-fp32-sse41-ld64.c
   src/qu8-igemm/gen/qu8-igemm-4x4c2s4-minmax-fp32-sse41-ld128.c
+  src/qu8-rdsum/gen/qu8-rdsum-7p7x-sse41-c16.c
+  src/qu8-rdsum/gen/qu8-rdsum-7p7x-sse41-c32.c
+  src/qu8-rdsum/gen/qu8-rdsum-7p7x-sse41-c64.c
   src/qu8-requantization/qu8-requantization-gemmlowp-sse41.c
   src/qu8-requantization/qu8-requantization-rndna-sse41.c
+  src/qu8-rsum/gen/qu8-rsum-sse41-u16.c
+  src/qu8-rsum/gen/qu8-rsum-sse41-u32.c
   src/qu8-vadd/gen/qu8-vadd-minmax-sse41-mul16-ld64-u16.c
   src/qu8-vadd/gen/qu8-vadd-minmax-sse41-mul32-ld32-u8.c
   src/qu8-vadd/gen/qu8-vadd-minmax-sse41-mul32-ld32-u16.c

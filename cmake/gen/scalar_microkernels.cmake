@@ -211,6 +211,7 @@ SET(PROD_SCALAR_MICROKERNEL_SRCS
   src/qu8-igemm/gen/qu8-igemm-1x4-minmax-fp32-scalar-lrintf.c
   src/qu8-igemm/gen/qu8-igemm-2x2-minmax-fp32-scalar-imagic.c
   src/qu8-igemm/gen/qu8-igemm-3x4-minmax-fp32-scalar-lrintf.c
+  src/qu8-rsum/gen/qu8-rsum-scalar-u4.c
   src/qu8-vadd/gen/qu8-vadd-minmax-scalar-u1.c
   src/qu8-vadd/gen/qu8-vadd-minmax-scalar-u4.c
   src/qu8-vaddc/gen/qu8-vaddc-minmax-scalar-u1.c
@@ -959,12 +960,15 @@ SET(NON_PROD_SCALAR_MICROKERNEL_SRCS
   src/qu8-igemm/gen/qu8-igemm-4x4-minmax-fp32-scalar-imagic.c
   src/qu8-igemm/gen/qu8-igemm-4x4-minmax-fp32-scalar-lrintf.c
   src/qu8-igemm/gen/qu8-igemm-4x4-minmax-rndnu-scalar.c
+  src/qu8-rdsum/gen/qu8-rdsum-scalar.c
   src/qu8-requantization/qu8-requantization-fp32-scalar-fmagic.c
   src/qu8-requantization/qu8-requantization-fp32-scalar-lrintf.c
   src/qu8-requantization/qu8-requantization-gemmlowp-scalar.c
   src/qu8-requantization/qu8-requantization-rndna-scalar-signed64.c
   src/qu8-requantization/qu8-requantization-rndna-scalar-unsigned32.c
   src/qu8-requantization/qu8-requantization-rndna-scalar-unsigned64.c
+  src/qu8-rsum/gen/qu8-rsum-scalar-u1.c
+  src/qu8-rsum/gen/qu8-rsum-scalar-u2.c
   src/qu8-vadd/gen/qu8-vadd-minmax-scalar-u2.c
   src/qu8-vaddc/gen/qu8-vaddc-minmax-scalar-u2.c
   src/qu8-vcvt/gen/qu8-vcvt-scalar-u2.c
